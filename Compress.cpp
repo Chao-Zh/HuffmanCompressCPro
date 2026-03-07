@@ -3,97 +3,118 @@ using namespace std;
 #include <cstring>
 #include "Compress.h"
 #include "huffman.h"
-#define SIZE 10
 
-int Compress(huffNode* ht,int* weight,const char* filename,string* HufCode)
+int Compress(huffNode* ht, int* weight, const char* filename, string* HufCode)
 {
     CreateHuffTree(ht, 256, weight);
-
-    HuffmanCoding(510,ht,511,HufCode,"");
-    int nSize=0;
-    for(int i=0;i<256;++i) nSize+=weight[i]*HufCode[i].length();
+    HuffmanCoding(510, ht, 511, HufCode, "");
+    
+    int nSize = 0;
+    for(int i = 0; i < 256; ++i)
+    {
+        nSize += weight[i] * HufCode[i].length();
+    }
     nSize = (nSize % 8) ? nSize / 8 + 1 : nSize / 8;
-    char* pBuffer=NULL;
-    Encode(filename,HufCode,pBuffer,nSize);
+    
+    char* pBuffer = NULL;
+    if(Encode(filename, HufCode, pBuffer, nSize) < 0)
+    {
+        return -1;
+    }
     if(!pBuffer) return -1;
+    
     HEAD sHead;
-    InitHead(filename,sHead);
-    int len = WriteFile(filename,sHead,pBuffer,nSize);
+    InitHead(filename, weight, sHead);
+    int len = WriteFile(filename, sHead, pBuffer, nSize);
+    
+    // é‡Šæ”¾å†…å­˜
+    free(pBuffer);
     return len;
 }
 
 int Str2byte(string pBinStr)
 {
     int b = 0x00;
-    while(pBinStr.size()<8) pBinStr+="0";
+    while(pBinStr.size() < 8) pBinStr += "0";
     for(int i = 0; i < 8; i++)
     {
-        b = b<<1;// ×óÒÆ 1 Î»
-        if (pBinStr[i] == '1') {
+        b = b << 1;
+        if (pBinStr[i] == '1')
+        {
             b = b | 0x01;
         }
     }
     return b;
 }
 
-int Encode(const char* filename,string* HufCode,char* &pBuffer,const int nSize)
+int Encode(const char* filename, string* HufCode, char* &pBuffer, const int nSize)
 {
     FILE *in = fopen(filename, "rb");
-    pBuffer = (char*)malloc(nSize*sizeof(char));
-    if (!pBuffer)
+    if(!in)
     {
-        cerr<<"¿ª±Ù»º³åÇøÊ§°Ü"<<endl;
+        cerr << "æ‰“å¼€æ–‡ä»¶å¤±è´¥" << endl;
         return -1;
     }
-    string cd="";
-    int pos=0;// »º³åÇøÖ¸Õë
-    int ch;
-    while((ch=fgetc(in))!=EOF)
+    
+    pBuffer = (char*)malloc(nSize * sizeof(char));
+    if (!pBuffer)
     {
-        cd+=HufCode[ch];
-        while(cd.size()>=8)
-        {
-            pBuffer[pos++]=Str2byte(cd);
-            cd=cd.substr(8,sizeof(cd)-8);
-        }
+        cerr << "åˆ†é…ç¼“å†²åŒºå¤±è´¥" << endl;
+        fclose(in);
+        return -1;
     }
-    fclose(in);
-    if(cd.length()>0) pBuffer[pos++]=Str2byte(cd);
-}
-
-int InitHead(const char *filename, HEAD &sHead)
-{
-    strcpy(sHead.type,"HUF");
-    sHead.length=0;
-    for(int i=0;i<256;++i) sHead.weight[i]=0;
-    FILE* in =fopen(filename,"rb");
+    
+    string cd = "";
+    int pos = 0;
     int ch;
     while((ch = fgetc(in)) != EOF)
     {
-        sHead.weight[ch]++;
-        sHead.length++;
+        cd += HufCode[ch];
+        while(cd.size() >= 8)
+        {
+            pBuffer[pos++] = Str2byte(cd);
+            cd = cd.substr(8);
+        }
     }
     fclose(in);
-    in=NULL;
+    
+    if(cd.length() > 0)
+    {
+        pBuffer[pos++] = Str2byte(cd);
+    }
+    return 0;
+}
+
+int InitHead(const char *filename, int* weight, HEAD &sHead)
+{
+    strcpy(sHead.type, "HUF");
+    sHead.length = 0;
+    for(int i = 0; i < 256; ++i)
+    {
+        sHead.weight[i] = weight[i];
+        sHead.length += weight[i];
+    }
     return 0;
 }
 
 int WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, const int nSize)
 {
-    // Éú³ÉÎÄ¼þÃû
-    char filename[256] = {0};
+    char filename[300] = {0};
     strcpy(filename, pFilename);
     strcat(filename, ".huf");
-    // ÒÔ¶þ½øÖÆÁ÷ÐÎÊ½´ò¿ªÎÄ¼þ
+    
     FILE *out = fopen(filename, "wb");
-    // Ð´ÎÄ¼þÍ·
+    if(!out)
+    {
+        cerr << "åˆ›å»ºåŽ‹ç¼©æ–‡ä»¶å¤±è´¥" << endl;
+        return -1;
+    }
+    
     fwrite(&sHead, sizeof(HEAD), 1, out);
-    // Ð´Ñ¹ËõºóµÄ±àÂë
     fwrite(pBuffer, sizeof(char), nSize, out);
-    // ¹Ø±ÕÎÄ¼þ£¬ÊÍ·ÅÎÄ¼þÖ¸Õë
     fclose(out);
-    out = NULL;
-    cout<<"Éú³ÉÑ¹ËõÎÄ¼þ:"<<filename<<endl;
-    int len = sizeof(HEAD) + strlen(pFilename) + 1 + nSize;
+    
+    cout << "ç”ŸæˆåŽ‹ç¼©æ–‡ä»¶: " << filename << endl;
+    int len = sizeof(HEAD) + nSize;
     return len;
 }

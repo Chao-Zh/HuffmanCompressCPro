@@ -1,11 +1,12 @@
 #pragma once
 #include <iostream>
+#include <string>
 using namespace std;
 #include "huffman.h"
 
-int Compress(huffNode* ht,int* weight,const char* filename,string* HufCode);
+int Compress(huffNode* ht, int* weight, const char* filename, string* HufCode);
 int Str2byte(string pBinStr);
-int Encode(const char* filename,string* HufCode,char* &pBuffer,const int nSize);
+int Encode(const char* filename, string* HufCode, char* &pBuffer, const int nSize);
 
 struct HEAD
 {
@@ -14,5 +15,5 @@ struct HEAD
     int weight[256];
 };
 
-int InitHead(const char *filename, HEAD &sHead);
+int InitHead(const char *filename, int* weight, HEAD &sHead);
 int WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, const int nSize);

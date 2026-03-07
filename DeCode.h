@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-using namespace std;
 #include <string>
+using namespace std;
 
 string Byte2Str(int ch);
-void DeCode(const char* filename,string* HufCode);
+void DeCode(const char* filename, string* HufCode);

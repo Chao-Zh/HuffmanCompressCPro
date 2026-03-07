@@ -4,90 +4,118 @@ using namespace std;
 #include "Compress.h"
 #include <cstring>
 #include <map>
-#include <set>
 #include <vector>
-#include <algorithm>
 
 string Byte2Str(int ch)
 {
-    string arr="";
-    int temp=ch;
-    for(int i=7;i>=0;--i)
+    string arr = "";
+    int temp = ch;
+    for(int i = 7; i >= 0; --i)
     {
-        if(temp%2==1) arr="1"+arr;
-        else arr="0"+arr;
-        temp=temp>>1;
+        if(temp % 2 == 1) arr = "1" + arr;
+        else arr = "0" + arr;
+        temp = temp >> 1;
     }
     return arr;
 }
 
-void myWrite(string val)
+void DeCode(const char* filename, string* HufCode)
 {
-    cout<<Str2byte(val)<<endl;
-}
-
-void DeCode(const char* filename,string* HufCode)
-{
-    char* oFilename="DeCode.bmp";
-    FILE* out=fopen(oFilename,"wb");
-    FILE* in=fopen(filename,"rb");
-    map<string,int> hufCodeMap;
-    for(int i=0;i<256;++i)
+    // ä»Žè¾“å…¥æ–‡ä»¶åç”Ÿæˆè¾“å‡ºæ–‡ä»¶åï¼ˆåŽ»æŽ‰.hufæ‰©å±•åï¼‰
+    char oFilename[300] = {0};
+    strcpy(oFilename, filename);
+    int len = strlen(oFilename);
+    if(len > 4 && strcmp(oFilename + len - 4, ".huf") == 0)
     {
-        hufCodeMap[HufCode[i]]=i;
+        oFilename[len - 4] = '\0';
     }
-    HEAD sHead;
-    cout<<"ÕýÔÚÉú³ÉÎÄ¼þ:"<<oFilename<<endl;
-    fread(&sHead, sizeof(HEAD), 1, in);
-    vector<int> picData;
-    cout<<"ÎÄ¼þÍ·¶ÁÈ¡³É¹¦£¬ÕýÔÚ¶ÁÈ¡Ñ¹ËõÎÄ¼þÊý¾Ý¡£¡£¡£"<<endl;
-    set<int> idx;
-    for(int i=0;i<256;++i)
+    strcat(oFilename, "_decoded");
+    
+    FILE* out = fopen(oFilename, "wb");
+    FILE* in = fopen(filename, "rb");
+    if(!in || !out)
     {
-        if(sHead.weight[i]!=0) idx.insert(i);
+        cerr << "æ‰“å¼€æ–‡ä»¶å¤±è´¥" << endl;
+        if(in) fclose(in);
+        if(out) fclose(out);
+        return;
     }
-    // int weight={0};
-    string str="";
-    int ch;
-    int size=0;
-    while((ch=fgetc(in))!=EOF)
+    
+    map<string, int> hufCodeMap;
+    for(int i = 0; i < 256; ++i)
     {
-        str+=Byte2Str(ch);
-        ++size;
-    }
-    cout<<"Ñ¹ËõÎÄ¼þÊý¾Ý¶ÁÈ¡³É¹¦£¬ÕýÔÚ×ªÂë¡£¡£¡£"<<endl;
-    // int count=0;
-    int sign=1;
-    int len=0;
-    while(str.size()>0)
-    {
-        sign=1;
-        for(int i:idx)
+        if(HufCode[i].length() > 0)
         {
-            if(str.find(HufCode[i],len)==len)
+            hufCodeMap[HufCode[i]] = i;
+        }
+    }
+    
+    HEAD sHead;
+    cout << "è¾“å‡ºè§£åŽ‹æ–‡ä»¶: " << oFilename << endl;
+    fread(&sHead, sizeof(HEAD), 1, in);
+    cout << "æ–‡ä»¶å¤´è¯»å–æˆåŠŸï¼Œæ­£åœ¨è¯»å–åŽ‹ç¼©æ–‡ä»¶æ•°æ®..." << endl;
+    
+    vector<int> picData;
+    string str = "";
+    int ch;
+    while((ch = fgetc(in)) != EOF)
+    {
+        str += Byte2Str(ch);
+    }
+    cout << "åŽ‹ç¼©æ–‡ä»¶æ•°æ®è¯»å–æˆåŠŸï¼Œå¼€å§‹è§£ç ..." << endl;
+    
+    // ä½¿ç”¨æ›´é«˜æ•ˆçš„è§£ç ç®—æ³•
+    int pos = 0;
+    int totalBytes = sHead.length;
+    int decodedBytes = 0;
+    
+    while(pos < (int)str.size() && decodedBytes < totalBytes)
+    {
+        bool found = false;
+        string code = "";
+        
+        for(int i = pos; i < (int)str.size() && i - pos < 256; ++i)
+        {
+            code += str[i];
+            if(hufCodeMap.find(code) != hufCodeMap.end())
             {
-                picData.push_back(hufCodeMap[HufCode[i]]);
-                len+=HufCode[i].size();
-                --sHead.weight[i];
-                if(sHead.weight[i]==0) idx.erase(i);
-                sign=0;
+                int value = hufCodeMap[code];
+                picData.push_back(value);
+                pos = i + 1;
+                decodedBytes++;
+                found = true;
                 break;
             }
         }
-        if(sign) break;
-        cout<<"×ªÂë½ø¶È: "<<len/8<<"/"<<size<<endl;
+        
+        if(!found) break;
+        
+        if(decodedBytes % 10000 == 0)
+        {
+            cout << "è§£ç è¿›åº¦: " << decodedBytes << "/" << totalBytes << endl;
+        }
     }
-    cout<<"×ªÂë³É¹¦£¬ÕýÔÚÐ´Èë»º³åÇø¡£¡£¡£"<<endl;
-    char* oBuffer=(char*)malloc(sHead.length*sizeof(char));
-    int pos=0;
-    for(vector<int>::iterator it=picData.begin();it!=picData.end();++it)
+    
+    cout << "è§£ç æˆåŠŸï¼Œæ­£åœ¨å†™å…¥ç¼“å†²åŒº..." << endl;
+    char* oBuffer = (char*)malloc(sHead.length * sizeof(char));
+    if(!oBuffer)
     {
-        oBuffer[pos++]=(char)(*(it));
+        cerr << "åˆ†é…å†…å­˜å¤±è´¥" << endl;
+        fclose(in);
+        fclose(out);
+        return;
     }
-    cout<<"»º³åÇøÐ´Èë³É¹¦£¡ÇëÉÔµÈ¡£¡£¡£"<<endl;
-    fwrite(oBuffer,sHead.length,1,out);
-    cout<<"½âÑ¹³É¹¦£¡"<<endl;
+    
+    for(int i = 0; i < (int)picData.size(); ++i)
+    {
+        oBuffer[i] = (char)picData[i];
+    }
+    
+    cout << "ç¼“å†²åŒºå†™å…¥æˆåŠŸï¼Œæ­£åœ¨å†™å…¥æ–‡ä»¶..." << endl;
+    fwrite(oBuffer, sHead.length, 1, out);
+    cout << "è§£åŽ‹æˆåŠŸï¼" << endl;
+    
+    free(oBuffer);
     fclose(out);
     fclose(in);
-    system("pause");
 }
