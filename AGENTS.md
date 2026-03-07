@@ -12,7 +12,7 @@
 
 ## 项目结构
 
-```
+```text
 HuffmanCompressCPro/
 ├── main.cpp           # 主程序入口
 ├── huffman.h          # Huffman树相关函数声明
@@ -31,6 +31,7 @@ HuffmanCompressCPro/
 ## 核心模块
 
 ### 1. Huffman树模块 (huffman.h/cpp)
+
 - **数据结构**: `huffNode` 类表示Huffman树的节点
   - `weight`: 节点权重
   - `pa`: 父节点索引
@@ -43,6 +44,7 @@ HuffmanCompressCPro/
   - `HuffmanCoding(int root, huffNode* ht, int num, string HufCode[], string str)`: 生成Huffman编码
 
 ### 2. 压缩模块 (Compress.h/cpp)
+
 - **数据结构**: `HEAD` 结构体存储压缩文件头信息
   - `type[4]`: 文件类型标识
   - `length`: 原始文件长度
@@ -56,12 +58,15 @@ HuffmanCompressCPro/
   - `WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, const int nSize)`: 写入压缩文件
 
 ### 3. 解压缩模块 (DeCode.h/cpp)
+
 - **核心函数**:
   - `Byte2Str(int ch)`: 字节转二进制字符串
   - `DeCode(const char* filename, string* HufCode)`: 执行解压缩
 
 ### 4. 主程序 (main.cpp)
+
 程序流程:
+
 1. 用户输入要压缩的文件名
 2. 统计文件中各字节的频率
 3. 构建Huffman树
@@ -74,12 +79,14 @@ HuffmanCompressCPro/
 
 ### 编译项目
 
-**方法1: 使用VS Code任务**
+#### 方法1: 使用VS Code任务
+
 - 使用 `Ctrl+Shift+P` 或按 `F1` 打开命令面板
 - 输入 "Tasks: Run Task"
 - 选择 "C/C++: g++ 生成活动文件"
 
-**方法2: 手动编译**
+#### 方法2: 手动编译
+
 ```bash
 cd /home/chaoz/vscodeprogram/HuffmanCompressCPro
 g++ -g -fdiagnostics-color=always *.cpp -o a.exe
@@ -96,12 +103,14 @@ g++ -g -fdiagnostics-color=always *.cpp -o a.exe
 ## 压缩文件格式
 
 压缩文件（`.huf`）结构:
-```
+
+```text
 [文件头 HEAD]
 [压缩数据]
 ```
 
 文件头包含:
+
 - 4字节文件类型标识
 - 原始文件长度（4字节）
 - 256个字节的频率统计表
@@ -128,18 +137,18 @@ g++ -g *.cpp -o a.exe
 
 - **编译器版本**: GCC (支持C++17标准)
 - **标准**: GNU++17
-- **字符编码**: 源代码使用GBK编码（中文注释）
+- **字符编码**: 源代码使用UTF-8编码（中文注释）
 - **调试**: 编译时包含 `-g` 标志以支持调试
 
 ## 已知限制
 
-1. 源代码中的中文注释使用GBK编码，在UTF-8环境下可能显示乱码
-2. 当前版本为命令行交互式程序，暂不支持批量处理
-3. 压缩文件输出固定为 `.huf` 扩展名
+1. 当前版本为命令行交互式程序，暂不支持批量处理
+2. 压缩文件输出固定为 `.huf` 扩展名
 
 ## 测试文件
 
 项目包含以下测试图片文件:
+
 - `pic.bmp`
 - `pic1.bmp`
 - `pic2.bmp`
