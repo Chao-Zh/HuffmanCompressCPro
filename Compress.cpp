@@ -27,7 +27,7 @@ int Compress(huffNode* ht, int* weight, const char* filename, string* HufCode)
     InitHead(filename, weight, sHead);
     int len = WriteFile(filename, sHead, pBuffer, nSize);
     
-    // 释放内存
+    // 閲婃斁鍐呭瓨
     free(pBuffer);
     return len;
 }
@@ -52,14 +52,14 @@ int Encode(const char* filename, string* HufCode, char* &pBuffer, const int nSiz
     FILE *in = fopen(filename, "rb");
     if(!in)
     {
-        cerr << "打开文件失败" << endl;
+        cerr << "鎵撳紑鏂囦欢澶辫触" << endl;
         return -1;
     }
     
     pBuffer = (char*)malloc(nSize * sizeof(char));
     if (!pBuffer)
     {
-        cerr << "分配缓冲区失败" << endl;
+        cerr << "鍒嗛厤缂撳啿鍖哄け璐�" << endl;
         fclose(in);
         return -1;
     }
@@ -106,7 +106,7 @@ int WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, cons
     FILE *out = fopen(filename, "wb");
     if(!out)
     {
-        cerr << "创建压缩文件失败" << endl;
+        cerr << "鍒涘缓鍘嬬缉鏂囦欢澶辫触" << endl;
         return -1;
     }
     
@@ -114,7 +114,7 @@ int WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, cons
     fwrite(pBuffer, sizeof(char), nSize, out);
     fclose(out);
     
-    cout << "生成压缩文件: " << filename << endl;
+    cout << "鐢熸垚鍘嬬缉鏂囦欢: " << filename << endl;
     int len = sizeof(HEAD) + nSize;
     return len;
 }
