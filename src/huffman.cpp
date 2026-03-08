@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#include "huffman.h"
+#include "../include/huffman.h"
 #define INFINITY 0x7FFFFFFF
 
 void select(huffNode* hf, int n, int &id1, int &id2)

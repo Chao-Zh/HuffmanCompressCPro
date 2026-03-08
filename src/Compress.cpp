@@ -1,8 +1,8 @@
 #include <iostream>
 using namespace std;
 #include <cstring>
-#include "Compress.h"
-#include "huffman.h"
+#include "../include/Compress.h"
+#include "../include/huffman.h"
 
 int Compress(huffNode* ht, int* weight, const char* filename, string* HufCode)
 {

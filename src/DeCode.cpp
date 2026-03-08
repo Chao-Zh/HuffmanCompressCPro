@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
-#include "huffman.h"
-#include "Compress.h"
+#include "../include/huffman.h"
+#include "../include/Compress.h"
 #include <cstring>
 #include <map>
 #include <vector>

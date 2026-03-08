@@ -8,18 +8,42 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "*.cpp",
+                "${workspaceFolder}/src/*.cpp",
+                "-I",
+                "${workspaceFolder}/include",
                 "-o",
-                "${fileDirname}/a.exe"
+                "${workspaceFolder}/a.exe"
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "group": {
                 "kind": "build",
                 "isDefault": false
             }
         },
-        {"type": "cppbuild", "label": "C/C++: g++ 生成活动文件", "command": "/usr/bin/g++", "args": ["-fdiagnostics-color=always", "-g", "*.cpp", "-o", "${fileDirname}/a.exe"], "options": {"cwd": "${fileDirname}"}, "problemMatcher": ["$gcc"], "group": {"kind": "build", "isDefault": true}, "detail": "调试器生成的任务。"}
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++ 生成活动文件",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${workspaceFolder}/src/*.cpp",
+                "-I",
+                "${workspaceFolder}/include",
+                "-o",
+                "${workspaceFolder}/a.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。"
+        }
     ]
 }

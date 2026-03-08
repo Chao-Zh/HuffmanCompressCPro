@@ -14,23 +14,35 @@
 
 ```text
 HuffmanCompressCPro/
-├── main.cpp           # 主程序入口
-├── huffman.h          # Huffman树相关函数声明
-├── huffman.cpp        # Huffman树实现
-├── Compress.h         # 压缩功能声明
-├── Compress.cpp       # 压缩功能实现
-├── DeCode.h           # 解压缩功能声明
-├── DeCode.cpp         # 解压缩功能实现
-└── .vscode/           # VS Code配置
-    ├── tasks.json     # 构建任务配置
-    ├── c_cpp_properties.json
-    ├── launch.json
-    └── settings.json
+├── include/           # 头文件目录
+│   ├── huffman.h      # Huffman树相关函数声明
+│   ├── Compress.h     # 压缩功能声明
+│   └── DeCode.h       # 解压缩功能声明
+├── src/               # 源代码目录
+│   ├── main.cpp       # 主程序入口
+│   ├── huffman.cpp    # Huffman树实现
+│   ├── Compress.cpp   # 压缩功能实现
+│   └── DeCode.cpp     # 解压缩功能实现
+├── picture/           # 测试图片目录
+│   ├── pic.bmp
+│   ├── pic1.bmp
+│   ├── pic2.bmp
+│   ├── 123.webp
+│   ├── R-C.jpeg
+│   ├── DeCode.bmp
+│   └── DeCode.webp
+├── .vscode/           # VS Code配置
+│   ├── tasks.json     # 构建任务配置
+│   ├── c_cpp_properties.json
+│   ├── launch.json
+│   └── settings.json
+├── a.exe              # 编译生成的可执行文件
+└── AGENTS.md          # 项目文档
 ```
 
 ## 核心模块
 
-### 1. Huffman树模块 (huffman.h/cpp)
+### 1. Huffman树模块 (include/huffman.h, src/huffman.cpp)
 
 - **数据结构**: `huffNode` 类表示Huffman树的节点
   - `weight`: 节点权重
@@ -43,7 +55,7 @@ HuffmanCompressCPro/
   - `CreateHuffTree(huffNode* hf, int n, int* wt)`: 构建Huffman树
   - `HuffmanCoding(int root, huffNode* ht, int num, string HufCode[], string str)`: 生成Huffman编码
 
-### 2. 压缩模块 (Compress.h/cpp)
+### 2. 压缩模块 (include/Compress.h, src/Compress.cpp)
 
 - **数据结构**: `HEAD` 结构体存储压缩文件头信息
   - `type[4]`: 文件类型标识
@@ -57,13 +69,13 @@ HuffmanCompressCPro/
   - `InitHead(const char *filename, HEAD &sHead)`: 初始化文件头
   - `WriteFile(const char *pFilename, const HEAD sHead, const char* pBuffer, const int nSize)`: 写入压缩文件
 
-### 3. 解压缩模块 (DeCode.h/cpp)
+### 3. 解压缩模块 (include/DeCode.h, src/DeCode.cpp)
 
 - **核心函数**:
   - `Byte2Str(int ch)`: 字节转二进制字符串
   - `DeCode(const char* filename, string* HufCode)`: 执行解压缩
 
-### 4. 主程序 (main.cpp)
+### 4. 主程序 (src/main.cpp)
 
 程序流程:
 
@@ -83,13 +95,13 @@ HuffmanCompressCPro/
 
 - 使用 `Ctrl+Shift+P` 或按 `F1` 打开命令面板
 - 输入 "Tasks: Run Task"
-- 选择 "C/C++: g++ 生成活动文件"
+- 选择 "C/C++: g++ 生成活动文件" 或 "build-cpp"
 
 #### 方法2: 手动编译
 
 ```bash
 cd /home/chaoz/vscodeprogram/HuffmanCompressCPro
-g++ -g -fdiagnostics-color=always *.cpp -o a.exe
+g++ -g -fdiagnostics-color=always -I include src/*.cpp -o a.exe
 ```
 
 ### 运行程序
@@ -99,6 +111,8 @@ g++ -g -fdiagnostics-color=always *.cpp -o a.exe
 ```
 
 运行后会提示输入要压缩的文件名，程序将执行压缩并显示压缩率。
+
+**注意**: 测试图片位于 `picture/` 目录中，运行程序时可使用相对路径如 `picture/pic.bmp`。
 
 ## 压缩文件格式
 
@@ -119,14 +133,14 @@ g++ -g -fdiagnostics-color=always *.cpp -o a.exe
 
 ```bash
 # 编译程序
-g++ -g *.cpp -o a.exe
+g++ -g -I include src/*.cpp -o a.exe
 
 # 运行程序
 ./a.exe
 
 # 程序交互示例:
 # ==========Huffman文件压缩系统==========
-# 请输入文件名: pic.bmp
+# 请输入文件名: picture/pic.bmp
 # 原文件大小:12345字节
 # 压缩文件大小:8765字节
 # 压缩率:71.0032%
@@ -139,6 +153,25 @@ g++ -g *.cpp -o a.exe
 - **标准**: GNU++17
 - **字符编码**: 源代码使用UTF-8编码（中文注释）
 - **调试**: 编译时包含 `-g` 标志以支持调试
+- **头文件搜索路径**: 编译时使用 `-I include` 指定头文件目录
+
+## VS Code 配置说明
+
+### tasks.json
+
+- 配置了两个构建任务：`build-cpp` 和 `C/C++: g++ 生成活动文件`
+- 编译参数包含 `-I ${workspaceFolder}/include` 指定头文件路径
+- 编译 `src/*.cpp` 并输出到项目根目录的 `a.exe`
+
+### c_cpp_properties.json
+
+- 包含 `${workspaceFolder}/include` 在 includePath 中
+- 使用 GNU++17 标准
+
+### launch.json
+
+- 调试配置指向 `${workspaceFolder}/a.exe`
+- 工作目录为 `${workspaceFolder}`
 
 ## 已知限制
 
@@ -147,12 +180,14 @@ g++ -g *.cpp -o a.exe
 
 ## 测试文件
 
-项目包含以下测试图片文件:
+项目包含以下测试图片文件（位于 `picture/` 目录）:
 
 - `pic.bmp`
 - `pic1.bmp`
 - `pic2.bmp`
 - `123.webp`
 - `R-C.jpeg`
+- `DeCode.bmp`
+- `DeCode.webp`
 
 这些文件可用于测试压缩效果。通常BMP格式的图片压缩效果较好（因存在大量重复数据）。

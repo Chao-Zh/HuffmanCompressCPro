@@ -1,9 +1,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <cstring>
-#include "huffman.h"
-#include "Compress.h"
-#include "DeCode.h"
+#include "../include/huffman.h"
+#include "../include/Compress.h"
+#include "../include/DeCode.h"
 using namespace std;
 
 int main()
