@@ -37,7 +37,7 @@ HuffmanCompressCPro/
 │   ├── launch.json
 │   └── settings.json
 ├── a.exe              # 编译生成的可执行文件
-└── AGENTS.md          # 项目文档
+└── README.md          # 项目文档
 ```
 
 ## 核心模块
